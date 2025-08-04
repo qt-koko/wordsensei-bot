@@ -870,21 +870,25 @@ Need more help? Join our support group! 💬"""
 
 # ─── Ping Command Handler ───────────────────────────────────────────
 @dp.message(Command("ping"))
-async def ping_command(message: types.Message):
-    """Handle /ping command with hidden support link"""
-    if not rate_limiter.is_allowed(message.from_user.id):
-        await message.answer("🚫 Too many requests. Please wait a moment.")
-        return
+async def ping_command(message: Message):
+    start_time = time.time()
     
-    # Calculate response time (simulated)
-    import random
-    response_time = round(random.uniform(200, 800), 2)
+    # Check if it's a group chat
+    if message.chat.type in ['group', 'supergroup']:
+        # In groups, reply to the original message
+        sent_message = await message.reply("🛰️ Pinging...")
+    else:
+        # In private chats, send normally
+        sent_message = await message.answer("🛰️ Pinging...")
     
-    ping_text = f'🏓 <a href="{GROUP_URL}">Pong!</a> {response_time}ms'
+    # Calculate ping time
+    end_time = time.time()
+    ping_time = round((end_time - start_time) * 1000, 2)
     
-    await message.answer(
-        ping_text,
-        parse_mode=ParseMode.HTML,
+    # Edit the message with Pong and hyperlink
+    await sent_message.edit_text(
+        f'🏓 <a href="https://t.me/SoulMeetsHQ">Pong!</a> {ping_time}ms',
+        parse_mode="HTML",
         disable_web_page_preview=True
     )
 
